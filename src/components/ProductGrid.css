@@ -1,0 +1,22 @@
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.25rem;
+  padding: 1.25rem;
+}
+
+.product-grid--state {
+  min-height: 200px;
+  place-items: center;
+  color: var(--text);
+}
+
+.product-grid--error {
+  color: #b91c1c;
+}
+
+@media (prefers-color-scheme: dark) {
+  .product-grid--error {
+    color: #fca5a5;
+  }
+}
