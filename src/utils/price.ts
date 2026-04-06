@@ -1,11 +1,13 @@
+import type { Product } from '../types/product'
+
 /** Unit price after discount (DummyJSON provides list price + discount %). */
-export function unitPrice(product) {
+export function unitPrice(product: Product): number {
   const pct = product.discountPercentage ?? 0
   const raw = product.price * (1 - pct / 100)
   return Math.round(raw * 100) / 100
 }
 
-export function formatMoney(value) {
+export function formatMoney(value: number): string {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',

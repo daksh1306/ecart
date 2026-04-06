@@ -4,16 +4,17 @@ import Header from './components/Header'
 import ProductGrid from './components/ProductGrid'
 import ProductDetailModal from './components/ProductDetailModal'
 import CartDrawer from './components/CartDrawer'
+import type { Product, ProductListResponse } from './types/product'
 import './App.css'
 
 const PRODUCTS_URL = 'https://dummyjson.com/products'
 
 function Shop() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [detailId, setDetailId] = useState(null)
-  const [previewProduct, setPreviewProduct] = useState(null)
+  const [error, setError] = useState<string | null>(null)
+  const [detailId, setDetailId] = useState<number | null>(null)
+  const [previewProduct, setPreviewProduct] = useState<Product | null>(null)
   const [cartOpen, setCartOpen] = useState(false)
 
   const {
@@ -29,18 +30,18 @@ function Shop() {
 
   useEffect(() => {
     let cancelled = false
-    setLoading(true)
-    setError(null)
     fetch(PRODUCTS_URL)
       .then((r) => {
         if (!r.ok) throw new Error('Failed to load products')
-        return r.json()
+        return r.json() as Promise<ProductListResponse>
       })
       .then((data) => {
         if (!cancelled) setProducts(data.products ?? [])
       })
-      .catch((e) => {
-        if (!cancelled) setError(e.message ?? 'Something went wrong')
+      .catch((e: unknown) => {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : 'Something went wrong')
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -50,7 +51,7 @@ function Shop() {
     }
   }, [])
 
-  const openDetails = useCallback((product) => {
+  const openDetails = useCallback((product: Product) => {
     setPreviewProduct(product)
     setDetailId(product.id)
   }, [])
@@ -61,14 +62,14 @@ function Shop() {
   }, [])
 
   const handleAdd = useCallback(
-    (product) => {
+    (product: Product) => {
       addToCart(product, 1)
     },
     [addToCart],
   )
 
   const handleAddFromModal = useCallback(
-    (product) => {
+    (product: Product) => {
       addToCart(product, 1)
     },
     [addToCart],
@@ -86,6 +87,7 @@ function Shop() {
       />
       {detailId != null && (
         <ProductDetailModal
+          key={detailId}
           productId={detailId}
           previewProduct={previewProduct}
           onClose={closeDetails}

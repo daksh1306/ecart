@@ -1,6 +1,11 @@
 import './Header.css'
 
-export default function Header({ onOpenCart, itemCount }) {
+type HeaderProps = {
+  onOpenCart: () => void
+  itemCount: number
+}
+
+export default function Header({ onOpenCart, itemCount }: HeaderProps) {
   return (
     <header className="shop-header">
       <div className="shop-header__inner">

@@ -1,34 +1,42 @@
 import { useEffect, useState } from 'react'
+import type { Product } from '../types/product'
 import { formatMoney, unitPrice } from '../utils/price'
 import './ProductDetailModal.css'
 
 const API = 'https://dummyjson.com/products'
+
+type ProductDetailModalProps = {
+  productId: number
+  previewProduct: Product | null
+  onClose: () => void
+  onAddToCart: (product: Product) => void
+}
 
 export default function ProductDetailModal({
   productId,
   previewProduct,
   onClose,
   onAddToCart,
-}) {
-  const [detail, setDetail] = useState(previewProduct ?? null)
-  const [loading, setLoading] = useState(Boolean(productId))
-  const [err, setErr] = useState(null)
+}: ProductDetailModalProps) {
+  const [detail, setDetail] = useState<Product | null>(previewProduct ?? null)
+  const [loading, setLoading] = useState(true)
+  const [err, setErr] = useState<string | null>(null)
 
   useEffect(() => {
     if (!productId) return undefined
     let cancelled = false
-    setLoading(true)
-    setErr(null)
     fetch(`${API}/${productId}`)
       .then((r) => {
         if (!r.ok) throw new Error('Could not load product')
-        return r.json()
+        return r.json() as Promise<Product>
       })
       .then((data) => {
         if (!cancelled) setDetail(data)
       })
-      .catch((e) => {
-        if (!cancelled) setErr(e.message ?? 'Failed to load')
+      .catch((e: unknown) => {
+        if (!cancelled) {
+          setErr(e instanceof Error ? e.message : 'Failed to load')
+        }
       })
       .finally(() => {
         if (!cancelled) setLoading(false)
@@ -39,7 +47,7 @@ export default function ProductDetailModal({
   }, [productId])
 
   useEffect(() => {
-    const onKey = (e) => {
+    const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
     window.addEventListener('keydown', onKey)
@@ -49,10 +57,10 @@ export default function ProductDetailModal({
   if (!productId && !previewProduct) return null
 
   const p = detail
-  const sale = p ? unitPrice(p) : null
-  const hasDiscount = p && (p.discountPercentage ?? 0) > 0
+  const sale = p ? unitPrice(p) : 0
+  const hasDiscount = Boolean(p && (p.discountPercentage ?? 0) > 0)
   const mainImage =
-    p?.images?.[0] ?? p?.thumbnail ?? previewProduct?.thumbnail
+    p?.images?.[0] ?? p?.thumbnail ?? previewProduct?.thumbnail ?? ''
 
   return (
     <div
@@ -77,7 +85,7 @@ export default function ProductDetailModal({
           <div className="modal-content">
             <div className="modal-gallery">
               <img src={mainImage} alt="" className="modal-gallery__main" />
-              {p.images?.length > 1 && (
+              {p.images && p.images.length > 1 && (
                 <div className="modal-thumbs">
                   {p.images.map((src) => (
                     <img key={src} src={src} alt="" loading="lazy" />
@@ -95,7 +103,7 @@ export default function ProductDetailModal({
                   <span className="modal-info__list">{formatMoney(p.price)}</span>
                 )}
                 <span className="modal-info__sale">{formatMoney(sale)}</span>
-                {hasDiscount && (
+                {hasDiscount && p.discountPercentage != null && (
                   <span className="modal-info__pct">
                     −{Math.round(p.discountPercentage)}%
                   </span>
@@ -107,11 +115,11 @@ export default function ProductDetailModal({
                   <strong>Category</strong> {p.category}
                 </li>
                 <li>
-                  <strong>Rating</strong> {p.rating} / 5
+                  <strong>Rating</strong> {p.rating ?? '—'} / 5
                 </li>
                 <li>
                   <strong>Stock</strong>{' '}
-                  {p.stock > 0 ? `${p.stock} available` : 'Out of stock'}
+                  {(p.stock ?? 0) > 0 ? `${p.stock} available` : 'Out of stock'}
                 </li>
                 {p.sku && (
                   <li>

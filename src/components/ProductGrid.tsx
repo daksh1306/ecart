@@ -1,5 +1,14 @@
+import type { Product } from '../types/product'
 import ProductCard from './ProductCard'
 import './ProductGrid.css'
+
+type ProductGridProps = {
+  products: Product[]
+  loading: boolean
+  error: string | null
+  onViewDetails: (product: Product) => void
+  onAddToCart: (product: Product) => void
+}
 
 export default function ProductGrid({
   products,
@@ -7,7 +16,7 @@ export default function ProductGrid({
   error,
   onViewDetails,
   onAddToCart,
-}) {
+}: ProductGridProps) {
   if (loading) {
     return (
       <div className="product-grid product-grid--state" role="status">

@@ -1,7 +1,18 @@
+import type { Product } from '../types/product'
 import { formatMoney, unitPrice } from '../utils/price'
 import './ProductCard.css'
 
-export default function ProductCard({ product, onViewDetails, onAddToCart }) {
+type ProductCardProps = {
+  product: Product
+  onViewDetails: (product: Product) => void
+  onAddToCart: (product: Product) => void
+}
+
+export default function ProductCard({
+  product,
+  onViewDetails,
+  onAddToCart,
+}: ProductCardProps) {
   const sale = unitPrice(product)
   const hasDiscount = (product.discountPercentage ?? 0) > 0
 

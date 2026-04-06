@@ -1,5 +1,19 @@
+import type { CartContextValue } from '../context/CartContext'
+import type { CartLine } from '../types/product'
 import { formatMoney } from '../utils/price'
 import './CartDrawer.css'
+
+type CartDrawerProps = {
+  open: boolean
+  onClose: () => void
+  items: CartLine[]
+  itemCount: number
+  subtotal: number
+  increment: CartContextValue['increment']
+  setLineQuantity: CartContextValue['setLineQuantity']
+  removeLine: CartContextValue['removeLine']
+  clearCart: CartContextValue['clearCart']
+}
 
 export default function CartDrawer({
   open,
@@ -11,7 +25,7 @@ export default function CartDrawer({
   setLineQuantity,
   removeLine,
   clearCart,
-}) {
+}: CartDrawerProps) {
   if (!open) return null
 
   return (
